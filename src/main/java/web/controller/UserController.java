@@ -9,39 +9,45 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import web.dao.UserDao;
 import web.model.User;
+import web.service.UserService;
+
 import java.util.List;
 
 @Controller
 public class UserController {
 
+    private final UserService userService;
+
     @Autowired
-    private UserDao userDao;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/users")
     public String listUsers(Model model) {
-        List<User> users = userDao.listUsers();
+        List<User> users = userService.listUsers();
         model.addAttribute("users", users);
         return "users";
     }
     @PostMapping("/users")
     public String addUser(@ModelAttribute("user") User user, @RequestParam String action) {
         if (user.getId() == null) {
-            userDao.add(user);
+            userService.addUser(user);
         } else {
-            userDao.update(user);
+            userService.updateUser(user);
         }
         return "redirect:/users";
     }
 
     @PostMapping("/deleteUser")
     public String deleteUser (@RequestParam("userId") Long userId) {
-        userDao.delete(userId);
+        userService.deleteUser(userId);
         return "redirect:/users";
     }
 
     @GetMapping("/editUser")
     public String showEditUserForm(@RequestParam("userId") Long id, Model model) {
-        User user = userDao.getUserById(id);
+        User user = userService.getUserById(id);
         model.addAttribute("user", user);
         return "editUser";
     }
